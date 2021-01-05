@@ -272,6 +272,7 @@ class ImageRequest {
 
     parseImageEditsSimple(event) {
         if(!event.queryStringParameters){
+            console.log("queryStringParameters is empty");
             return undefined;
         }
         if (event.queryStringParameters.hasOwnProperty('cover')) {
@@ -283,14 +284,37 @@ class ImageRequest {
             resize.fit = "cover"
             edits.resize = resize;
             return edits;
-        } else if (event.queryStringParameters.hasOwnProperty('fill')) {
+        } else if (event.queryStringParameters.hasOwnProperty('thumbnail')) {
             var edits = new Object();
             var resize = new Object();
-            var param = event.queryStringParameters.fill;
-            resize.width = param.split("y")[0];
-            resize.height = param.split("y")[1];
-            resize.fit = "fill"
+            var param = event.queryStringParameters.thumbnail;
+            if(param.includes("x")){
+                console.log("param include x");
+                resize.width = param.split("x")[0];
+                resize.height = param.split("x")[1];
+                resize.fit = "inside"
+            }else if (param.includes("z")){
+                console.log("param include z");
+                resize.width = param.split("z")[0];
+                resize.height = param.split("z")[1];
+                resize.fit = "outside"
+            }else{
+                console.log("param include y");
+                resize.width = param.split("y")[0];
+                resize.height = param.split("y")[1];
+                resize.fit = "fill"
+            }
             edits.resize = resize;
+            return edits;
+        }else if (event.queryStringParameters.hasOwnProperty('crop')) {
+            var edits = new Object();
+            var extract = new Object();
+            var param = event.queryStringParameters.crop;
+            extract.left = Number(param.split("_")[0]);
+            extract.top = Number(param.split("_")[1]);
+            extract.width = Number(param.split("_")[2]);
+            extract.height = Number(param.split("_")[3]);
+            edits.extract = extract;
             return edits;
         } else if(event.queryStringParameters.hasOwnProperty('blur')){
             var edits = new Object();
@@ -298,6 +322,7 @@ class ImageRequest {
             edits.blur = Number(param);
             return edits;
         }
+        console.log("queryStringParameters is undefined");
         return undefined;
     }
 
